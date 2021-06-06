@@ -1,3 +1,9 @@
+args = commandArgs(trailingOnly=TRUE)
+r = getOption("repos")
+r["CRAN"] = "https://ftp.harukasan.org/CRAN/"
+options(repos = r)
+.libPaths('./Rlib')
+
 rm(list=ls(all=TRUE))
 library(Hmisc) # list.tree
 library(rlist) # list.map
@@ -37,8 +43,7 @@ calc.count <- function (data) {
 gen.dataset <- function (file.jsons) {
     ret = list()
     for (file.json in file.jsons) {
-        ## calcData = list(date=file.name,
-                        ## polarity=calc.sentiment(json, 'polarity'),
+        ## calcData = list(date=file.name,        show(fi
         ## intensity=calc.sentiment(json, 'intensity'))
         calcData = list.merge(list(data=file.json$date), calc.sentiment(file.json$data), calc.count(file.json$data))
         ret = list.append(ret, calcData)
@@ -48,14 +53,38 @@ gen.dataset <- function (file.jsons) {
 
 load.json <- function (file.names) {
     ret = list()
+    tmpdate <- '1970-01-01'
+    tmpbuf <- NULL
     for (file.name in file.names) {
-        json = load.jsonFile(file.name)
+        json = fromJSON(file = paste('./res/', file.name, '.json', sep=''))
         tmp = list(date=file.name, data=json)
         ret = list.append(ret, tmp)
+        #splitdate <- strsplit(file.name, '-')[[1]]
+        #newdate <- paste(splitdate[1], splitdate[2], '01', sep='-')
+        #if (tmpdate == newdate) {
+        #        # show(json)
+        #    if (is.null(tmpjson{
+        #        tmpbuf <- json
+        #    } else {
+        #        tmpbuf <- c(tmpbuf, json)
+        #    }
+        #} else {
+        #    if (!is.null(tmpbuf)) {
+        #        tmp = list(date=newdate, data=tmpbuf)
+        #        ret = list.append(ret, tmp)
+        #        tmpbuf <- NULL
+        #    }
+        #    tmpdate <- newdate
+        #}
     }
     return(ret)
 }
-file.list = system("ls ./results | sed 's/\\.json//g'", intern = TRUE)
+
+file.list = system("ls ./res | sed 's/\\.json//g'", intern = TRUE)
+dataset <- gen.dataset(load.json(file.list))
+# resolution <- '1 day'
+resolution <- '1 month'
+
 plot.sentiment <- function (dataset) {
     names = unlist(list.map(dataset, return(date)))
     names = c(1:length(dataset))
@@ -70,6 +99,7 @@ plot.sentiment <- function (dataset) {
 ggplot.sentiment <- function (dataset) {
     # 감성그래프
     names = as.Date(unlist(list.map(dataset, return(data))))
+    show(names)
     pos = unlist(list.map(dataset, return(polarity$pos)))
     neg = unlist(list.map(dataset, return(polarity$neg)))
     neut = unlist(list.map(dataset, return(polarity$neut)))
@@ -92,7 +122,7 @@ ggplot.sentiment <- function (dataset) {
         geom_point(aes(x, pos), color = color.pos, size = size.dot) + geom_line(aes(x, pos), color = color.pos) +
         geom_point(aes(x, neg), color = color.neg, size = size.dot) + geom_line(aes(x, neg), color = color.neg) +
         geom_point(aes(x, neut), color = color.neut, size = size.dot) + geom_line(aes(x, neut), color = color.neut) +
-        scale_x_date(date_labels = "%m-%d", date_breaks = "1 day") +
+        scale_x_date(date_labels = "%y-%m-%d", date_breaks = resolution) +
         theme(axis.text.x = element_text(angle = 270, hjust = 1))
         ## theme(axis.text.x = element_blank(),
     ##       axis.ticks = element_blank())
@@ -120,7 +150,7 @@ ggplot.tweets <- function (dataset) {
     gp + geom_point(aes(x, pos), color = color.pos, size = size.dot) + geom_line(aes(x, pos), color = color.pos) +
         geom_point(aes(x, neg), color = color.neg, size = size.dot) + geom_line(aes(x, neg), color = color.neg) +
         ## geom_point(aes(x, neut), color = color.neut, size = size.dot) + geom_line(aes(x, neut), color = color.neut) +
-        scale_x_date(date_labels = "%m-%d", date_breaks = "1 day") +
+        scale_x_date(date_labels = "%y-%m-%d", date_breaks = resolution) +
         theme(axis.text.x = element_text(angle = 270, hjust = 1))
     ## theme(axis.text.x = element_blank(),
     ##       axis.ticks = element_blank())
@@ -154,7 +184,7 @@ ggplot.issue <- function (dataset) {
         geom_bar(stat = "identity", aes(x, diff), color = color.neg) + 
         ## geom_point(aes(x, neg), color = color.neg, size = size.dot) + geom_line(aes(x, neg), color = color.neg) +
         ## geom_point(aes(x, neut), color = color.neut, size = size.dot) + geom_line(aes(x, neut), color = color.neut) +
-        scale_x_date(date_labels = "%m-%d", date_breaks = "1 day") +
+        scale_x_date(date_labels = "%y-%m-%d", date_breaks = resolution) +
         theme(axis.text.x = element_text(angle = 270, hjust = 1))
         ## theme(axis.text.x = element_blank(),
         ##       axis.ticks = element_blank())
@@ -186,7 +216,7 @@ ggplot.slope <- function (dataset) {
     gp + geom_point(aes(x, pos), color = color.pos, size = size.dot) + geom_line(aes(x, pos), color = color.pos) +
         geom_point(aes(x, neg), color = color.neg, size = size.dot) + geom_line(aes(x, neg), color = color.neg) +
         geom_point(aes(x, neut), color = color.neut, size = size.dot) + geom_line(aes(x, neut), color = color.neut) +
-        scale_x_date(date_labels = "%m-%d", date_breaks = "1 day") +
+        scale_x_date(date_labels = "%y-%m-%d", date_breaks = resolution) +
         theme(axis.text.x = element_text(angle = 270, hjust = 1))
         ## theme(axis.text.x = element_blank(),
         ##       axis.ticks = element_blank())
