@@ -1,0 +1,6 @@
+args = commandArgs(trailingOnly=TRUE)
+r = getOption("repos")
+r["CRAN"] = "https://ftp.harukasan.org/CRAN/"
+options(repos = r)
+.libPaths('./Rlib')
+rmarkdown::render(args[1], 'pdf_document')
