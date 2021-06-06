@@ -7,11 +7,13 @@
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"dependencies": {
-		"lodash": "4.x",
-		"moment": "2.x",
+		"csv": "^5.5.0",
 		"deasync": "0.1.x",
-		"regexp.escape": "1.0.x",
-		"ls": "0.2.x"
+		"korean-sentiment-analyzer": "^0.0.1",
+		"lodash": "4.x",
+		"ls": "0.2.x",
+		"moment": "2.x",
+		"regexp.escape": "1.0.x"
 	},
 	"repository": {
 		"type": "git",
