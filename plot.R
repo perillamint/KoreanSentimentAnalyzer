@@ -45,18 +45,21 @@ gen.dataset <- function (file.jsons) {
     for (file.json in file.jsons) {
         ## calcData = list(date=file.name,        show(fi
         ## intensity=calc.sentiment(json, 'intensity'))
-        calcData = list.merge(list(data=file.json$date), calc.sentiment(file.json$data), calc.count(file.json$data))
-        ret = list.append(ret, calcData)
+        show(file.json$date)
+        if(length(file.json$data) != 0) {
+            calcData = list.merge(list(data=file.json$date), calc.sentiment(file.json$data), calc.count(file.json$data))
+            ret = list.append(ret, calcData)
+        }
     }
     return(ret)
 }
 
-load.json <- function (file.names) {
+load.json <- function (datapath, file.names) {
     ret = list()
     tmpdate <- '1970-01-01'
     tmpbuf <- NULL
     for (file.name in file.names) {
-        json = fromJSON(file = paste('./res/', file.name, '.json', sep=''))
+        json = fromJSON(file = paste(datapath, file.name, '.json', sep=''))
         tmp = list(date=file.name, data=json)
         ret = list.append(ret, tmp)
         #splitdate <- strsplit(file.name, '-')[[1]]
@@ -80,11 +83,6 @@ load.json <- function (file.names) {
     return(ret)
 }
 
-file.list = system("ls ./res | sed 's/\\.json//g'", intern = TRUE)
-dataset <- gen.dataset(load.json(file.list))
-# resolution <- '1 day'
-resolution <- '1 month'
-
 plot.sentiment <- function (dataset) {
     names = unlist(list.map(dataset, return(date)))
     names = c(1:length(dataset))
@@ -99,7 +97,6 @@ plot.sentiment <- function (dataset) {
 ggplot.sentiment <- function (dataset) {
     # 감성그래프
     names = as.Date(unlist(list.map(dataset, return(data))))
-    show(names)
     pos = unlist(list.map(dataset, return(polarity$pos)))
     neg = unlist(list.map(dataset, return(polarity$neg)))
     neut = unlist(list.map(dataset, return(polarity$neut)))
@@ -222,4 +219,7 @@ ggplot.slope <- function (dataset) {
         ##       axis.ticks = element_blank())
 }
 
+datapath <- '../data-out/lang:ko (메갈리아\ OR 메갈).json.despammed/'
+file.list = system(paste("ls \'", datapath, "' | sed 's/\\.json//g'", sep=''), intern = TRUE)
+dataset <- gen.dataset(load.json(datapath, file.list))
 ggplot.sentiment(dataset)
