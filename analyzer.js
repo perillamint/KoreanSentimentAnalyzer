@@ -28,6 +28,9 @@ function parse (twData, options = {}, callback) {
 	// twData = twData.slice(0,800);
 	let text = _.map(twData, 'text'),
 		ret = {};
+	text = text.map((elem) => {
+		return elem.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '');
+	})
 	sentiment.parse(text, options, result => {
 		result = align(twData, result);
 		callback(result);
