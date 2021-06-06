@@ -1,1 +1,7 @@
 .git
+*.pdf
+node_modules/**
+.RData
+.Rhistory
+Rlib/**
+*.log
