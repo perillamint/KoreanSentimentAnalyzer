@@ -3,7 +3,7 @@ import socket, sys, json
 from konlpy.tag import Kkma
 from konlpy.utils import pprint
 
-kkma = Kkma()
+kkma = Kkma(max_heap_size=4096)
 
 FINISH_FLAG = bytes('__finished__', 'utf-8')
 
